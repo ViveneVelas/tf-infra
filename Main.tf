@@ -16,7 +16,7 @@ provider "aws" {
 // Build public EC2 to FrontEnd and Bastion Host:
 resource "aws_instance" "ec2-public" {
   ami           = "ami-0e86e20dae9224db8"
-  instance_type = "t2.small"
+  instance_type = "t2.micro"
 
   tags = {
     Name = "ec2-public"
@@ -24,7 +24,7 @@ resource "aws_instance" "ec2-public" {
 
   ebs_block_device {
     device_name = "/dev/sda1"
-    volume_size = 30
+    volume_size = 8
     volume_type = "gp3"
   }
 }
@@ -32,7 +32,7 @@ resource "aws_instance" "ec2-public" {
 // Build private EC2 to Backend:
 resource "aws_instance" "ec2-private" {
   ami           = "ami-0e86e20dae9224db8"
-  instance_type = "t2.small"
+  instance_type = "t2.micro"
 
   tags = {
     Name = "ec2-private"
@@ -40,7 +40,7 @@ resource "aws_instance" "ec2-private" {
 
   ebs_block_device {
     device_name = "/dev/sda2"
-    volume_size = 30
+    volume_size = 8
     volume_type = "gp3"
   }
 }
@@ -126,30 +126,6 @@ resource "aws_route_table_association" "public_subnet_asso" {
   route_table_id    = aws_route_table.second_rt.id
 }
 
-// Build RDS
-resource "aws_db_subnet_group" "db_subnet_group" {
-  name       = "db-subnet-group"
-  subnet_ids = aws_subnet.private_subnets[*].id
-
-  tags = {
-    Name = "Vivene Velas DB Subnet Group"
-  }
-}
-
-resource "aws_db_instance" "main_rds" {
-  allocated_storage       = 10
-  storage_type            = "gp2"
-  engine                  = "mysql"
-  engine_version          = "5.7"
-  instance_class          = "db.t3.micro"
-  identifier              = "mydb"
-  username                = "vivaneVelas"
-  password                = "VivaneVelas"
-  db_subnet_group_name    = aws_db_subnet_group.db_subnet_group.name
-  vpc_security_group_ids  = [aws_security_group.rds_sg.id]
-  skip_final_snapshot     = true
-}
-
 // Build Security Group for RDS
 resource "aws_security_group" "rds_sg" {
   vpc_id = aws_vpc.main.id
@@ -164,7 +140,7 @@ resource "aws_s3_bucket" "s3-bucket" {
   bucket = "vivanevelas-s3-bucket"
 
   tags = {
-    Name        = "vivanevelas-s3-bucket"
+    Name = "vivanevelas-s3-bucket"
   }
 }
 
