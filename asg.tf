@@ -1,43 +1,53 @@
-// Create Launch Template
-resource "aws_launch_template" "web_launch_template" {
-  name_prefix   = "web-template"
-  image_id      = "ami-0e86e20dae9224db8"
-  instance_type = "t2.micro"
+resource "aws_launch_configuration" "lc" {
+  name          = "example-lc"
+  image_id     = "ami-0e86e20dae9224db8"  # ID da AMI fornecida
+  instance_type = var.instance_type
+  key_name      = var.key_name
 
-  block_device_mappings {
-    device_name = "/dev/sda1"
-    ebs {
-      volume_size = 8
-      volume_type = "gp3"
-    }
+  lifecycle {
+    create_before_destroy = true
   }
 
-  tag_specifications {
-    resource_type = "instance"
-    tags = {
-      Name = "web-server"
-    }
+  root_block_device {
+    volume_size = var.volume_size
+    volume_type = "gp2"
   }
 }
 
-// Create Auto Scaling Group
-resource "aws_autoscaling_group" "web_asg" {
-  desired_capacity     = 2
+resource "aws_autoscaling_group" "public_asg" {
+  desired_capacity     = 1
   max_size             = 3
   min_size             = 1
-  vpc_zone_identifier  = aws_subnet.public_subnets[*].id
-  target_group_arns    = [aws_lb_target_group.web_tg.arn]
-  launch_template {
-    id      = aws_launch_template.web_launch_template.id
-    version = "$Latest"
-  }
+  vpc_zone_identifier = aws_subnet.public_subnets[*].id
+  launch_configuration = aws_launch_configuration.lc.id
 
-  health_check_type = "EC2"
-  health_check_grace_period = 300
+  health_check_type          = "EC2"
+  health_check_grace_period  = 300
 
-  tag {
-    key                 = "Name"
-    value               = "web-server-asg"
-    propagate_at_launch = true
-  }
+  tags = [
+    {
+      key                 = "Name"
+      value               = "Public-ASG-Instance"
+      propagate_at_launch = true
+    },
+  ]
+}
+
+resource "aws_autoscaling_group" "private_asg" {
+  desired_capacity     = 1
+  max_size             = 3
+  min_size             = 1
+  vpc_zone_identifier = aws_subnet.private_subnets[*].id
+  launch_configuration = aws_launch_configuration.lc.id
+
+  health_check_type          = "EC2"
+  health_check_grace_period  = 300
+
+  tags = [
+    {
+      key                 = "Name"
+      value               = "Private-ASG-Instance"
+      propagate_at_launch = true
+    },
+  ]
 }

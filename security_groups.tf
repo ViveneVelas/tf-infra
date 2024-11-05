@@ -29,7 +29,15 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"] // Permitir acesso externo à instância EC2
+  }
+
+  // Permitir tráfego do ALB para as instâncias EC2
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    security_groups = [aws_security_group.lb_sg.id] // Permitir tráfego do ALB
   }
 
   egress {
