@@ -1,10 +1,18 @@
-// Security Group for Load Balancer
-resource "aws_security_group" "lb_sg" {
+# Configuração dos security groups para o frontend e backend
+
+resource "aws_security_group" "frontend" {
   vpc_id = aws_vpc.main.id
 
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -17,27 +25,18 @@ resource "aws_security_group" "lb_sg" {
   }
 
   tags = {
-    Name = "lb-security-group"
+    Name = "frontend-sg"
   }
 }
 
-// Security Group for EC2 Instances
-resource "aws_security_group" "ec2_sg" {
+resource "aws_security_group" "backend" {
   vpc_id = aws_vpc.main.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] // Permitir acesso externo à instância EC2
-  }
-
-  // Permitir tráfego do ALB para as instâncias EC2
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    security_groups = [aws_security_group.lb_sg.id] // Permitir tráfego do ALB
+    cidr_blocks = ["10.0.1.0/24"] # Apenas tráfego da sub-rede pública
   }
 
   egress {
@@ -48,6 +47,6 @@ resource "aws_security_group" "ec2_sg" {
   }
 
   tags = {
-    Name = "ec2-security-group"
+    Name = "backend-sg"
   }
 }

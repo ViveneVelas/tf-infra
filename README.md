@@ -34,7 +34,6 @@ terraform init
 - Internet Gateway: Cria um gateway de internet e o associa à VPC. <br>
 - Route Table: Define uma tabela de rotas para permitir acesso à internet a partir das subnets públicas. <br>
 - EC2 Instances: Provisiona instâncias EC2 públicas (para FrontEnd e Bastion Host) e privadas (para Backend). <br>
-- RDS: Cria uma instância RDS MySQL e uma subnet group associada. <br>
 - Security Groups: Define um grupo de segurança para a instância RDS. <br>
 - S3 Bucket: Cria um bucket S3 com um nome específico. <br>
 
@@ -58,10 +57,6 @@ terraform init
 - Internet Gateway associado à VPC.
 
 ### Tabela de rotas para fornecer acesso à internet para as subnets públicas.
-
-### RDS (MySQL)
-- Instância MySQL RDS em uma subnet privada.
-- Grupo de subnets associado à instância RDS.
 
 ### S3 Bucket
 - Bucket S3 para armazenamento de objetos.
